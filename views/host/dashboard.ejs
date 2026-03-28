@@ -1,0 +1,149 @@
+<% layout("/layouts/boilerplate") %>
+<%
+  const safeMonthBuckets = Array.isArray(monthBuckets) ? monthBuckets : [];
+  const safeMaxBookings = typeof maxBookings === "number" && maxBookings > 0 ? maxBookings : 1;
+  const safeMaxRevenue = typeof maxRevenue === "number" && maxRevenue > 0 ? maxRevenue : 1;
+%>
+
+<section class="host-dashboard-page">
+  <header class="host-head">
+    <div>
+      <p class="host-kicker">Host Console</p>
+      <h1>Dashboard</h1>
+      <p class="host-subtitle">Track listings, reservations, and earnings at one place.</p>
+    </div>
+    <a href="/listings/new" class="btn create-listing-btn">+ Add Listing</a>
+  </header>
+
+  <div class="host-metrics">
+    <article>
+      <p>Total Listings</p>
+      <h3><%= metrics.totalListings %></h3>
+    </article>
+    <article>
+      <p>Total Bookings</p>
+      <h3><%= metrics.totalBookings %></h3>
+    </article>
+    <article>
+      <p>Upcoming Stays</p>
+      <h3><%= metrics.upcomingStays %></h3>
+    </article>
+    <article>
+      <p>Gross Revenue</p>
+      <h3>&#8377;<%= metrics.grossRevenue.toLocaleString("en-IN") %></h3>
+    </article>
+    <article>
+      <p>Pending Payments</p>
+      <h3><%= metrics.pendingPayments %></h3>
+    </article>
+  </div>
+
+  <section class="host-card host-trends-card">
+    <div class="host-card-head">
+      <h2>Last 6 Months Trends</h2>
+    </div>
+    <% if (safeMonthBuckets.length === 0) { %>
+      <p class="host-empty">Trend data unavailable right now.</p>
+    <% } else { %>
+      <div class="host-trends-grid">
+        <% for (const bucket of safeMonthBuckets) { %>
+          <article class="trend-month">
+            <p class="trend-label"><%= bucket.label %></p>
+            <div class="trend-bars">
+              <div
+                class="trend-bar bookings-bar"
+                style="height: <%= Math.max(8, Math.round((bucket.bookings / safeMaxBookings) * 100)) %>%"
+                title="Bookings: <%= bucket.bookings %>"
+              ></div>
+              <div
+                class="trend-bar revenue-bar"
+                style="height: <%= Math.max(8, Math.round((bucket.revenue / safeMaxRevenue) * 100)) %>%"
+                title="Revenue: &#8377;<%= Number(bucket.revenue || 0).toLocaleString('en-IN') %>"
+              ></div>
+            </div>
+            <p class="trend-meta">
+              <span><%= bucket.bookings %> bookings</span>
+              <span>&#8377;<%= Number(bucket.revenue || 0).toLocaleString("en-IN") %></span>
+            </p>
+          </article>
+        <% } %>
+      </div>
+      <p class="trend-legend">
+        <span><i class="legend-dot legend-bookings"></i> Bookings</span>
+        <span><i class="legend-dot legend-revenue"></i> Revenue</span>
+      </p>
+    <% } %>
+  </section>
+
+  <div class="host-grid">
+    <section class="host-card">
+      <div class="host-card-head">
+        <h2>Listing Performance</h2>
+      </div>
+
+      <% if (listingPerformance.length === 0) { %>
+        <p class="host-empty">You do not have any listings yet.</p>
+      <% } else { %>
+        <div class="table-responsive">
+          <table class="table align-middle host-table">
+            <thead>
+              <tr>
+                <th>Listing</th>
+                <th>Location</th>
+                <th>Price</th>
+                <th>Bookings</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for (const item of listingPerformance) { %>
+                <tr>
+                  <td>
+                    <a href="/listings/<%= item.listingId %>"><%= item.title %></a>
+                  </td>
+                  <td><%= item.location %></td>
+                  <td>&#8377;<%= Number(item.price || 0).toLocaleString("en-IN") %></td>
+                  <td><%= item.bookingCount %></td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </section>
+
+    <section class="host-card">
+      <div class="host-card-head">
+        <h2>Recent Reservations</h2>
+      </div>
+
+      <% if (recentBookings.length === 0) { %>
+        <p class="host-empty">No reservations yet.</p>
+      <% } else { %>
+        <div class="host-booking-list">
+          <% for (const booking of recentBookings) { %>
+            <article class="host-booking-item">
+              <p>
+                <strong><%= booking.listing && booking.listing.title ? booking.listing.title : "Listing" %></strong>
+              </p>
+              <p class="mb-1">
+                Guest:
+                <strong><%= booking.guest && booking.guest.username ? booking.guest.username : "Guest" %></strong>
+              </p>
+              <p class="mb-1">
+                <%= booking.checkIn.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) %>
+                -
+                <%= booking.checkOut.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) %>
+              </p>
+              <p class="mb-0">
+                Total: &#8377;<%= Number(booking.totalPrice || 0).toLocaleString("en-IN") %>
+                <span class="booking-status <%= booking.paymentStatus === 'paid' ? 'status-paid' : (booking.paymentStatus === 'refunded' ? 'status-refunded' : 'status-pending') %>">
+                  <%= booking.paymentStatus || "pending" %>
+                </span>
+              </p>
+            </article>
+          <% } %>
+        </div>
+      <% } %>
+    </section>
+  </div>
+</section>

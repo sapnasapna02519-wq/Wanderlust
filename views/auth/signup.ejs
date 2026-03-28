@@ -1,0 +1,63 @@
+<% layout("/layouts/boilerplate") %>
+
+<section class="auth-page">
+  <div class="auth-card">
+    <h1>Create Account</h1>
+    <p class="form-subtitle">Join Wanderlust and start hosting your stays.</p>
+
+    <form method="POST" action="/auth/signup" class="needs-validation" novalidate>
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input
+          id="username"
+          name="user[username]"
+          type="text"
+          minlength="3"
+          required
+          value="<%= formData.username || '' %>"
+          class="form-control <%= errors.username ? 'is-invalid' : '' %>"
+        />
+        <div class="invalid-feedback">
+          <%= errors.username || "Username must be at least 3 characters." %>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input
+          id="email"
+          name="user[email]"
+          type="email"
+          required
+          value="<%= formData.email || '' %>"
+          class="form-control <%= errors.email ? 'is-invalid' : '' %>"
+        />
+        <div class="invalid-feedback">
+          <%= errors.email || "Please provide a valid email." %>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input
+          id="password"
+          name="user[password]"
+          type="password"
+          minlength="6"
+          required
+          class="form-control <%= errors.password ? 'is-invalid' : '' %>"
+        />
+        <div class="invalid-feedback">
+          <%= errors.password || "Password must be at least 6 characters." %>
+        </div>
+      </div>
+
+      <button class="btn create-listing-btn w-100" type="submit">Sign Up</button>
+    </form>
+
+    <p class="auth-switch">
+      Already have an account?
+      <a href="/auth/login">Login</a>
+    </p>
+  </div>
+</section>

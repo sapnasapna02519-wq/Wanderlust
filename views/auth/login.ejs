@@ -1,0 +1,54 @@
+<% layout("/layouts/boilerplate") %>
+
+<section class="auth-page">
+  <div class="auth-card">
+    <h1>Welcome Back</h1>
+    <p class="form-subtitle">Login to manage your listings and bookings.</p>
+
+    <form method="POST" action="/auth/login" class="needs-validation" novalidate>
+      <input type="hidden" name="returnTo" value="<%= returnTo || '' %>" />
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input
+          id="email"
+          name="user[email]"
+          type="email"
+          required
+          value="<%= formData.email || '' %>"
+          class="form-control <%= errors.email ? 'is-invalid' : '' %>"
+        />
+        <div class="invalid-feedback">
+          <%= errors.email || "Please provide a valid email." %>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input
+          id="password"
+          name="user[password]"
+          type="password"
+          minlength="6"
+          required
+          class="form-control <%= errors.password ? 'is-invalid' : '' %>"
+        />
+        <div class="invalid-feedback">
+          <%= errors.password || "Password is required." %>
+        </div>
+      </div>
+
+      <button class="btn create-listing-btn w-100" type="submit">Login</button>
+    </form>
+
+    <% if (typeof smtpConfigured !== "undefined" && smtpConfigured) { %>
+      <p class="auth-switch mt-2">
+        <a href="/auth/forgot-password">Forgot password?</a>
+      </p>
+    <% } %>
+
+    <p class="auth-switch">
+      New here?
+      <a href="/auth/signup">Create account</a>
+    </p>
+  </div>
+</section>

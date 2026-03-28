@@ -1,0 +1,51 @@
+<nav class="navbar navbar-expand-lg sticky-top site-navbar">
+  <div class="container-fluid nav-shell">
+    <a class="navbar-brand brand-mark" href="/">
+      <span class="brand-icon">
+        <i class="fa-regular fa-compass"></i>
+      </span>
+      <span class="brand-copy">
+        <strong>Wanderlust</strong>
+        <small>Stay beautifully</small>
+      </span>
+    </a>
+
+    <button
+      class="navbar-toggler nav-toggle"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav nav-primary me-auto">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/listings">All Listings</a>
+        <% if (currentUser) { %>
+          <a class="nav-link nav-host-link" href="/listings/new">Add Listing</a>
+        <% } %>
+      </div>
+
+      <div class="navbar-nav nav-secondary align-items-lg-center">
+        <% if (!currentUser) { %>
+          <a class="nav-link" href="/auth/login">Login</a>
+          <a class="btn btn-sm create-listing-btn nav-signup-btn" href="/auth/signup">Sign Up</a>
+        <% } else { %>
+          <a class="nav-link" href="/host/dashboard">Host Dashboard</a>
+          <a class="nav-link" href="/watchlist">Watchlist</a>
+          <a class="nav-link" href="/bookings">My Bookings</a>
+          <a class="nav-link" href="/auth/profile">Profile</a>
+          <span class="nav-user-badge">Hi, <%= currentUser.username %></span>
+          <form method="POST" action="/auth/logout" class="nav-logout-form">
+            <button class="btn btn-sm cancel-btn nav-logout-btn" type="submit">Logout</button>
+          </form>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</nav>

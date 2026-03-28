@@ -1,0 +1,151 @@
+<% layout("/layouts/boilerplate") %>
+<% const safeShowCancelled = typeof showCancelled !== "undefined" ? showCancelled : false; %>
+<%
+  const safeCurrentView =
+    typeof currentView !== "undefined"
+      ? currentView
+      : (safeShowCancelled ? "cancelled" : "all");
+%>
+<% const hasCounts = typeof counts !== "undefined"; %>
+<% const safeCounts = hasCounts ? counts : { active: 0, cancelled: 0, all: bookings ? bookings.length : 0 }; %>
+<% const safeSearchTerm = typeof searchTerm === "string" ? searchTerm : ""; %>
+<% const searchSuffix = safeSearchTerm ? `&q=${encodeURIComponent(safeSearchTerm)}` : ""; %>
+<% const safePagination = typeof pagination !== "undefined" ? pagination : { page: 1, totalPages: 1, hasPrev: false, hasNext: false }; %>
+
+<section class="booking-page">
+  <div class="booking-page-head">
+    <div>
+      <h1>My Bookings</h1>
+      <p>
+        <%= safeCurrentView === "cancelled" ? "Showing cancelled reservations." : (safeCurrentView === "all" ? "Showing all reservations." : "Manage your upcoming and active reservations.") %>
+      </p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a class="btn <%= safeCurrentView === 'all' ? 'create-listing-btn' : 'action-back' %>" href="/bookings?show=all<%= searchSuffix %>">All<%= hasCounts ? ` (${safeCounts.all})` : '' %></a>
+      <a class="btn <%= safeCurrentView === 'active' ? 'create-listing-btn' : 'action-back' %>" href="/bookings?show=active<%= searchSuffix %>">Active<%= hasCounts ? ` (${safeCounts.active})` : '' %></a>
+      <a class="btn <%= safeCurrentView === 'cancelled' ? 'create-listing-btn' : 'action-back' %>" href="/bookings?show=cancelled<%= searchSuffix %>">Cancelled<%= hasCounts ? ` (${safeCounts.cancelled})` : '' %></a>
+      <a class="btn action-back" href="/listings">Explore Listings</a>
+    </div>
+  </div>
+
+  <form class="d-flex gap-2 flex-wrap mb-3" method="GET" action="/bookings">
+    <input type="hidden" name="show" value="<%= safeCurrentView %>" />
+    <input
+      class="form-control"
+      style="max-width: 320px;"
+      type="search"
+      name="q"
+      value="<%= safeSearchTerm %>"
+      placeholder="Search by title, location, country"
+    />
+    <button class="btn create-listing-btn" type="submit">Search</button>
+    <% if (safeSearchTerm) { %>
+      <a class="btn action-back" href="/bookings?show=<%= safeCurrentView %>">Clear</a>
+    <% } %>
+  </form>
+
+  <% if (safeSearchTerm) { %>
+    <p class="text-muted mb-3">
+      <strong><%= typeof filteredCount === "number" ? filteredCount : (bookings ? bookings.length : 0) %></strong>
+      result(s) for "<%= safeSearchTerm %>"
+    </p>
+  <% } %>
+
+  <% if (!bookings || bookings.length === 0) { %>
+    <div class="empty-state">
+      <h3>No bookings yet</h3>
+      <p>
+        <%= safeCurrentView === "active"
+          ? "No active bookings. Check Cancelled tab or create a new booking."
+          : (safeCurrentView === "cancelled"
+            ? "No cancelled bookings found."
+            : "Reserve your first stay from the listings page.") %>
+      </p>
+      <a href="/listings" class="btn create-listing-btn">Find a Stay</a>
+    </div>
+  <% } else { %>
+    <div class="booking-list">
+      <% for (const booking of bookings) { %>
+        <article class="booking-item">
+          <div class="booking-item-media">
+            <img
+              src="<%= booking.listing && booking.listing.image && booking.listing.image.url ? booking.listing.image.url : 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?auto=format&fit=crop&w=1000&q=60' %>"
+              alt="<%= booking.listing && booking.listing.title ? booking.listing.title : 'Listing image' %>"
+              onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?auto=format&fit=crop&w=1000&q=60';"
+            />
+          </div>
+          <div class="booking-item-body">
+            <h3>
+              <%= booking.listing && booking.listing.title ? booking.listing.title : "Deleted listing" %>
+            </h3>
+            <p class="booking-item-meta">
+              <i class="fa-solid fa-location-dot"></i>
+              <%= booking.listing && booking.listing.location ? booking.listing.location : "Location" %>,
+              <%= booking.listing && booking.listing.country ? booking.listing.country : "Country" %>
+            </p>
+
+            <div class="booking-item-grid">
+              <p>
+                <span>Check-in</span>
+                <strong><%= booking.checkIn.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) %></strong>
+              </p>
+              <p>
+                <span>Check-out</span>
+                <strong><%= booking.checkOut.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) %></strong>
+              </p>
+              <p>
+                <span>Guests</span>
+                <strong><%= booking.guests %></strong>
+              </p>
+              <p>
+                <span>Total</span>
+                <strong>&#8377;<%= booking.totalPrice.toLocaleString("en-IN") %></strong>
+              </p>
+            </div>
+
+            <div class="booking-item-actions">
+              <span class="booking-status <%= booking.status === 'confirmed' ? 'status-confirmed' : 'status-cancelled' %>">
+                <%= booking.status %>
+              </span>
+              <span class="booking-status <%= booking.paymentStatus === 'paid' ? 'status-paid' : (booking.paymentStatus === 'refunded' ? 'status-refunded' : 'status-pending') %>">
+                payment: <%= booking.paymentStatus %>
+              </span>
+
+              <% if (booking.listing && booking.status === "confirmed") { %>
+                <a class="btn action-back btn-sm" href="/listings/<%= booking.listing._id %>">View Listing</a>
+              <% } %>
+
+              <% if (booking.status === "confirmed" && booking.paymentStatus !== "paid") { %>
+                <a class="btn create-listing-btn btn-sm" href="/bookings/<%= booking._id %>/checkout">Pay Now</a>
+              <% } %>
+
+              <% if (booking.status === "confirmed") { %>
+                <form method="POST" action="/bookings/<%= booking._id %>?_method=DELETE" onsubmit="return confirm('Cancel this booking?');">
+                  <button class="btn action-delete btn-sm" type="submit">Cancel Booking</button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+        </article>
+      <% } %>
+    </div>
+
+    <% if (safePagination.totalPages > 1) { %>
+      <nav aria-label="Bookings pagination" class="d-flex justify-content-center mt-4">
+        <ul class="pagination">
+          <li class="page-item <%= safePagination.hasPrev ? '' : 'disabled' %>">
+            <a class="page-link" href="/bookings?show=<%= safeCurrentView %><%= searchSuffix %>&page=<%= safePagination.page - 1 %>">Previous</a>
+          </li>
+          <% for (let p = 1; p <= safePagination.totalPages; p++) { %>
+            <li class="page-item <%= p === safePagination.page ? 'active' : '' %>">
+              <a class="page-link" href="/bookings?show=<%= safeCurrentView %><%= searchSuffix %>&page=<%= p %>"><%= p %></a>
+            </li>
+          <% } %>
+          <li class="page-item <%= safePagination.hasNext ? '' : 'disabled' %>">
+            <a class="page-link" href="/bookings?show=<%= safeCurrentView %><%= searchSuffix %>&page=<%= safePagination.page + 1 %>">Next</a>
+          </li>
+        </ul>
+      </nav>
+    <% } %>
+  <% } %>
+</section>

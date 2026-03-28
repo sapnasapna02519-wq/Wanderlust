@@ -1,0 +1,45 @@
+<% layout("/layouts/boilerplate") %>
+
+<section class="auth-page">
+  <div class="auth-card">
+    <h1>My Profile</h1>
+    <p class="form-subtitle">Manage your account details and security settings.</p>
+
+    <form method="POST" action="/auth/profile" class="needs-validation" novalidate>
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input
+          id="username"
+          name="user[username]"
+          type="text"
+          minlength="3"
+          required
+          value="<%= formData.username || '' %>"
+          class="form-control <%= errors.username ? 'is-invalid' : '' %>"
+        />
+        <div class="invalid-feedback">
+          <%= errors.username || "Username must be at least 3 characters." %>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input
+          id="email"
+          name="user[email]"
+          type="email"
+          required
+          value="<%= formData.email || '' %>"
+          class="form-control <%= errors.email ? 'is-invalid' : '' %>"
+        />
+        <div class="invalid-feedback">
+          <%= errors.email || "Please provide a valid email." %>
+        </div>
+      </div>
+
+      <button class="btn create-listing-btn w-100" type="submit">Update Profile</button>
+    </form>
+
+    <a class="btn cancel-btn w-100 mt-2" href="/auth/change-password">Change Password</a>
+  </div>
+</section>

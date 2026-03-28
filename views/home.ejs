@@ -1,0 +1,88 @@
+<% layout("/layouts/boilerplate") %>
+
+<section class="hero-shell">
+  <div class="hero-content">
+    <p class="hero-kicker">Curated stays across the world</p>
+    <h1>Find your next stay without the guesswork.</h1>
+    <p class="hero-subtext">
+      Discover verified homes, cabins, and villas with transparent pricing and
+      instant booking flow.
+    </p>
+
+    <form class="hero-search" action="/listings" method="GET">
+      <input
+        type="text"
+        name="q"
+        placeholder="Try: Goa, Bali, Aspen, Tuscany..."
+      />
+      <button type="submit">Explore Listings</button>
+    </form>
+
+    <div class="hero-metrics">
+      <div>
+        <span><%= totalListings %>+</span>
+        <p>Listings</p>
+      </div>
+      <div>
+        <span><%= totalCountries %>+</span>
+        <p>Countries</p>
+      </div>
+      <div>
+        <span>24/7</span>
+        <p>Support</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-panel">
+    <div class="hero-badge">Top Rated Escapes</div>
+    <h3>Weekend Plan</h3>
+    <p>Mountain Retreat, Aspen</p>
+    <a href="/listings">View all homes</a>
+  </div>
+</section>
+
+<section class="home-section">
+  <div class="section-head">
+    <h2>Featured picks</h2>
+    <a href="/listings">See all</a>
+  </div>
+
+  <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 g-4">
+    <% for (let listing of featuredListings) { %>
+      <a href="/listings/<%= listing._id %>" class="listing-link col">
+        <div class="card home-feature-card">
+          <img
+            src="<%= (listing.image && listing.image.url) ? listing.image.url : 'https://images.unsplash.com/photo-1625505826533-5c80aca7d157?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=60' %>"
+            class="card-img-top"
+            alt="<%= listing.title %>"
+            style="height: 16rem"
+            onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1625505826533-5c80aca7d157?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=60';"
+          />
+          <div class="card-body">
+            <p class="card-text">
+              <b><%= listing.title %></b><br />
+              <%= listing.location %>, <%= listing.country %><br />
+              &#8377;<%= listing.price.toLocaleString("en-IN") %> / night
+            </p>
+          </div>
+        </div>
+      </a>
+    <% } %>
+  </div>
+</section>
+
+<section class="home-section trust-grid">
+  <article>
+    <h3>Verified listings</h3>
+    <p>Quality checks and complete host details before publication.</p>
+  </article>
+  <article>
+    <h3>Clear pricing</h3>
+    <p>No hidden fees in your selection flow.</p>
+  </article>
+  <article>
+    <h3>Fast booking</h3>
+    <p>From discovery to confirmation in a few clicks.</p>
+  </article>
+</section>

@@ -1,0 +1,153 @@
+<% layout("/layouts/boilerplate") %>
+
+<%
+  const makeQuery = (pageNumber) => {
+    const params = new URLSearchParams();
+    if (filters.q) params.set("q", filters.q);
+    if (filters.category) params.set("category", filters.category);
+    if (filters.country) params.set("country", filters.country);
+    if (filters.minPrice !== "") params.set("minPrice", filters.minPrice);
+    if (filters.maxPrice !== "") params.set("maxPrice", filters.maxPrice);
+    if (filters.sort) params.set("sort", filters.sort);
+    if (filters.limit) params.set("limit", filters.limit);
+    params.set("page", pageNumber);
+    return params.toString();
+  };
+%>
+
+<section class="listing-index-page">
+  <header class="index-head">
+    <div>
+      <h1>All Listings</h1>
+      <p><%= pagination.totalListings %> stays found</p>
+    </div>
+    <a href="/listings/new" class="btn create-listing-btn">+ Add Listing</a>
+  </header>
+
+  <form class="index-filter-card" method="GET" action="/listings">
+    <div class="row g-2">
+      <div class="col-lg-4 col-md-6">
+        <input
+          type="text"
+          name="q"
+          value="<%= filters.q %>"
+          class="form-control"
+          placeholder="Search by title, location, country"
+        />
+      </div>
+
+      <div class="col-lg-2 col-md-6">
+        <select name="category" class="form-select">
+          <option value="">All Categories</option>
+          <% for (const category of categories) { %>
+            <option value="<%= category %>" <%= filters.category === category ? "selected" : "" %>>
+              <%= category %>
+            </option>
+          <% } %>
+        </select>
+      </div>
+
+      <div class="col-lg-2 col-md-6">
+        <select name="country" class="form-select">
+          <option value="">All Countries</option>
+          <% for (const country of countries) { %>
+            <option value="<%= country %>" <%= filters.country === country ? "selected" : "" %>>
+              <%= country %>
+            </option>
+          <% } %>
+        </select>
+      </div>
+
+      <div class="col-lg-2 col-md-6">
+        <input
+          type="number"
+          min="1"
+          name="minPrice"
+          value="<%= filters.minPrice %>"
+          class="form-control"
+          placeholder="Min Price"
+        />
+      </div>
+
+      <div class="col-lg-2 col-md-6">
+        <input
+          type="number"
+          min="1"
+          name="maxPrice"
+          value="<%= filters.maxPrice %>"
+          class="form-control"
+          placeholder="Max Price"
+        />
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <select name="sort" class="form-select">
+          <option value="newest" <%= filters.sort === "newest" ? "selected" : "" %>>Newest</option>
+          <option value="oldest" <%= filters.sort === "oldest" ? "selected" : "" %>>Oldest</option>
+          <option value="price_asc" <%= filters.sort === "price_asc" ? "selected" : "" %>>Price: Low to High</option>
+          <option value="price_desc" <%= filters.sort === "price_desc" ? "selected" : "" %>>Price: High to Low</option>
+        </select>
+      </div>
+
+      <div class="col-lg-2 col-md-6">
+        <select name="limit" class="form-select">
+          <option value="12" <%= String(filters.limit) === "12" ? "selected" : "" %>>12 / page</option>
+          <option value="24" <%= String(filters.limit) === "24" ? "selected" : "" %>>24 / page</option>
+          <option value="30" <%= String(filters.limit) === "30" ? "selected" : "" %>>30 / page</option>
+          <option value="60" <%= String(filters.limit) === "60" ? "selected" : "" %>>60 / page</option>
+        </select>
+      </div>
+
+      <div class="col-lg-7 col-md-6 d-flex gap-2">
+        <button class="btn create-listing-btn" type="submit">Apply Filters</button>
+        <a href="/listings" class="btn cancel-btn">Reset</a>
+      </div>
+    </div>
+  </form>
+
+  <% if (allListings.length === 0) { %>
+    <div class="empty-state">
+      <h3>No listings matched your filters.</h3>
+      <p>Try changing country, category, or price range.</p>
+      <a href="/listings" class="btn action-back">Clear filters</a>
+    </div>
+  <% } else { %>
+    <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 g-4">
+      <% for (let listing of allListings) { %>
+        <a href="/listings/<%= listing._id %>" class="listing-link col">
+          <div class="card home-feature-card">
+            <img
+              src="<%= listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?auto=format&fit=crop&w=1200&q=60' %>"
+              class="card-img-top"
+              alt="<%= listing.title %>"
+              style="height: 20rem"
+              onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?auto=format&fit=crop&w=1200&q=60';"
+            />
+            <div class="card-img-overlay"></div>
+            <div class="card-body">
+              <p class="card-text">
+                <b><%= listing.title %></b><br />
+                <%= listing.location %>, <%= listing.country %><br />
+                <span class="listing-price">&#8377;<%= listing.price.toLocaleString("en-IN") %> / night</span>
+              </p>
+            </div>
+          </div>
+        </a>
+      <% } %>
+    </div>
+  <% } %>
+
+  <nav class="index-pagination" aria-label="Listings pagination">
+    <a
+      class="btn action-back <%= pagination.hasPrev ? '' : 'disabled' %>"
+      href="<%= pagination.hasPrev ? `/listings?${makeQuery(pagination.prevPage)}` : '#' %>"
+    >Previous</a>
+
+    <span>Page <%= pagination.page %> of <%= pagination.totalPages %></span>
+
+    <a
+      class="btn action-back <%= pagination.hasNext ? '' : 'disabled' %>"
+      href="<%= pagination.hasNext ? `/listings?${makeQuery(pagination.nextPage)}` : '#' %>"
+    >Next</a>
+  </nav>
+</section>

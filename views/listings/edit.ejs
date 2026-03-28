@@ -1,0 +1,254 @@
+<% layout("/layouts/boilerplate") %>
+
+<section class="edit-listing-page">
+  <div class="edit-listing-shell">
+    <div class="edit-head">
+      <p class="edit-kicker">Host dashboard</p>
+      <h1>Edit Listing</h1>
+      <p class="form-subtitle">
+        Fine-tune your listing to improve guest trust and booking conversion.
+      </p>
+    </div>
+
+    <div class="edit-layout">
+      <form
+        id="editListingForm"
+        class="needs-validation edit-form"
+        method="POST"
+        action="/listings/<%= listingId %>?_method=PUT"
+        enctype="multipart/form-data"
+        novalidate
+      >
+        <div class="row g-3">
+          <div class="col-12">
+            <label for="title" class="form-label">Title</label>
+            <input
+              id="title"
+              name="listing[title]"
+              value="<%= formData.title || '' %>"
+              placeholder="Modern villa with private pool"
+              type="text"
+              minlength="5"
+              required
+              class="form-control form-control-lg <%= errors.title ? 'is-invalid' : '' %>"
+            />
+            <div class="invalid-feedback">
+              <%= errors.title || "Title must be at least 5 characters." %>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label for="description" class="form-label">Description</label>
+            <textarea
+              id="description"
+              name="listing[description]"
+              placeholder="Describe the space, nearby attractions, and why guests should book it."
+              minlength="20"
+              required
+              class="form-control listing-textarea <%= errors.description ? 'is-invalid' : '' %>"
+            ><%= formData.description || '' %></textarea>
+            <div class="invalid-feedback">
+              <%= errors.description || "Description must be at least 20 characters." %>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label for="imageUrl" class="form-label">Image URL</label>
+            <input
+              id="imageUrl"
+              name="listing[image][url]"
+              value="<%= formData.image && formData.image.url ? formData.image.url : '' %>"
+              placeholder="https://images.unsplash.com/..."
+              type="url"
+              class="form-control <%= errors.imageUrl ? 'is-invalid' : '' %>"
+            />
+            <small class="text-muted">Optional if you upload a new image file below.</small>
+            <div class="invalid-feedback">
+              <%= errors.imageUrl || "Please provide a valid image URL or upload an image file." %>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label for="imageFile" class="form-label">Upload New Image</label>
+            <input
+              id="imageFile"
+              name="listing[imageFile]"
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/webp"
+              class="form-control"
+            />
+            <div class="form-text">Accepted: JPG, PNG, WEBP. Max size: 5MB.</div>
+            <div class="invalid-feedback">
+              Please upload a valid image file.
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <label for="price" class="form-label">Price (per night)</label>
+            <input
+              id="price"
+              name="listing[price]"
+              value="<%= formData.price || '' %>"
+              placeholder="1500"
+              type="number"
+              min="1"
+              step="1"
+              required
+              class="form-control <%= errors.price ? 'is-invalid' : '' %>"
+            />
+            <div class="invalid-feedback">
+              <%= errors.price || "Price must be a positive number." %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <label for="location" class="form-label">Location</label>
+            <input
+              id="location"
+              name="listing[location]"
+              value="<%= formData.location || '' %>"
+              placeholder="Goa"
+              type="text"
+              required
+              class="form-control <%= errors.location ? 'is-invalid' : '' %>"
+            />
+            <div class="invalid-feedback">
+              <%= errors.location || "Location is required." %>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <label for="country" class="form-label">Country</label>
+            <input
+              id="country"
+              name="listing[country]"
+              value="<%= formData.country || '' %>"
+              placeholder="India"
+              type="text"
+              required
+              class="form-control <%= errors.country ? 'is-invalid' : '' %>"
+            />
+            <div class="invalid-feedback">
+              <%= errors.country || "Country is required." %>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label for="category" class="form-label">Category</label>
+            <select
+              id="category"
+              name="listing[category]"
+              required
+              class="form-select <%= errors.category ? 'is-invalid' : '' %>"
+            >
+              <option value="">Select a category</option>
+              <% for (const category of categories) { %>
+                <option
+                  value="<%= category %>"
+                  <%= formData.category === category ? "selected" : "" %>
+                >
+                  <%= category %>
+                </option>
+              <% } %>
+            </select>
+            <div class="invalid-feedback">
+              <%= errors.category || "Please select a category." %>
+            </div>
+          </div>
+
+          <div class="col-12 d-flex gap-2 mt-2">
+            <button type="submit" class="btn create-listing-btn flex-grow-1">
+              Update Listing
+            </button>
+            <a href="/listings/<%= listingId %>" class="btn cancel-btn">Cancel</a>
+          </div>
+        </div>
+      </form>
+
+      <aside class="edit-preview-card">
+        <p class="preview-label">Live preview</p>
+        <div class="image-preview edit-preview-image">
+          <img
+            id="editImagePreview"
+            src="<%= formData.image && formData.image.url ? formData.image.url : 'https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?auto=format&fit=crop&w=1200&q=60' %>"
+            alt="Listing image preview"
+          />
+        </div>
+        <h3 id="previewTitle"><%= formData.title || "Listing title" %></h3>
+        <p class="preview-meta">
+          <span id="previewLocation"><%= formData.location || "Location" %></span>,
+          <span id="previewCountry"><%= formData.country || "Country" %></span>
+        </p>
+        <p class="preview-price">
+          <span id="previewPrice"><%= formData.price || "0" %></span> / night
+        </p>
+        <ul class="preview-notes">
+          <li>Use a bright, high-resolution image.</li>
+          <li>Keep titles concise and specific.</li>
+          <li>Accurate pricing improves booking confidence.</li>
+        </ul>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script>
+  (() => {
+    const form = document.getElementById("editListingForm");
+    const imageUrlInput = document.getElementById("imageUrl");
+    const imageFileInput = document.getElementById("imageFile");
+    const imagePreview = document.getElementById("editImagePreview");
+    const titleInput = document.getElementById("title");
+    const locationInput = document.getElementById("location");
+    const countryInput = document.getElementById("country");
+    const priceInput = document.getElementById("price");
+    const previewTitle = document.getElementById("previewTitle");
+    const previewLocation = document.getElementById("previewLocation");
+    const previewCountry = document.getElementById("previewCountry");
+    const previewPrice = document.getElementById("previewPrice");
+
+    const fallbackImage =
+      "https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?auto=format&fit=crop&w=1200&q=60";
+
+    function updatePreview() {
+      const file = imageFileInput.files && imageFileInput.files[0];
+      if (file) {
+        imagePreview.src = URL.createObjectURL(file);
+        return;
+      }
+      const url = imageUrlInput.value.trim();
+      imagePreview.src = url || fallbackImage;
+    }
+
+    function syncTextPreview() {
+      previewTitle.textContent = titleInput.value.trim() || "Listing title";
+      previewLocation.textContent = locationInput.value.trim() || "Location";
+      previewCountry.textContent = countryInput.value.trim() || "Country";
+      previewPrice.textContent = priceInput.value.trim() || "0";
+    }
+
+    imageUrlInput.addEventListener("input", updatePreview);
+    imageFileInput.addEventListener("change", updatePreview);
+    imagePreview.addEventListener("error", () => {
+      imagePreview.src = fallbackImage;
+    });
+
+    [titleInput, locationInput, countryInput, priceInput].forEach((input) => {
+      input.addEventListener("input", syncTextPreview);
+    });
+
+    form.addEventListener("submit", (event) => {
+      form
+        .querySelectorAll('input[type="text"], input[type="url"], textarea')
+        .forEach((field) => {
+          field.value = field.value.trim();
+        });
+
+      if (!form.checkValidity()) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      form.classList.add("was-validated");
+    });
+  })();
+</script>

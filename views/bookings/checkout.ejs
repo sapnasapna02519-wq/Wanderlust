@@ -1,0 +1,23 @@
+<% layout("/layouts/boilerplate") %>
+
+<section class="checkout-page">
+  <article class="checkout-card">
+    <h1>Checkout</h1>
+    <p class="form-subtitle">Complete payment to secure your reservation.</p>
+
+    <div class="checkout-summary">
+      <p><span>Listing</span><strong><%= booking.listing && booking.listing.title ? booking.listing.title : "Listing" %></strong></p>
+      <p><span>Check-in</span><strong><%= booking.checkIn.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) %></strong></p>
+      <p><span>Check-out</span><strong><%= booking.checkOut.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) %></strong></p>
+      <p><span>Nights</span><strong><%= booking.nights %></strong></p>
+      <p><span>Guests</span><strong><%= booking.guests %></strong></p>
+      <p><span>Price / night</span><strong>&#8377;<%= booking.pricePerNight.toLocaleString("en-IN") %></strong></p>
+      <p class="checkout-total"><span>Total</span><strong>&#8377;<%= booking.totalPrice.toLocaleString("en-IN") %></strong></p>
+    </div>
+
+    <form method="POST" action="/bookings/<%= booking._id %>/pay">
+      <button class="btn create-listing-btn w-100" type="submit">Pay Securely (Demo)</button>
+    </form>
+    <a class="btn cancel-btn w-100 mt-2" href="/bookings">Back to My Bookings</a>
+  </article>
+</section>
