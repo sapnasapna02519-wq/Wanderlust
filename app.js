@@ -20,17 +20,20 @@ const PORT = Number(process.env.PORT || 8080);
 const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/wanderlust";
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
-main()
-  .then(() => {
+async function startServer() {
+  try {
+    await mongoose.connect(MONGO_URL);
     console.log("connected to DB");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
-
-async function main() {
-  await mongoose.connect(MONGO_URL);
+    app.listen(PORT, () => {
+      console.log(`server is listening to port ${PORT}`);
+    });
+  } catch (err) {
+    console.error("Failed to connect to MongoDB:", err);
+    process.exit(1);
+  }
 }
+
+startServer();
 
 const SESSION_COOKIE = "wanderlust_sid";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
@@ -209,10 +212,6 @@ app.get("/favorite/:listingId", async (req, res) => {
   return res.redirect(`/favorites/${listingId}`);
 });
 
-// Direct mounts to ensure Google OAuth endpoints are always reachable.
-app.get("/auth/google", authController.googleAuth);
-app.get("/auth/google/callback", authController.googleCallback);
-
 app.use("/auth", authRouter);
 app.use("/listings", listingsRouter);
 app.use("/bookings", bookingsRouter);
@@ -221,7 +220,7 @@ app.use("/wishlist", favoritesRouter);
 app.use("/watchlist", favoritesRouter);
 app.use("/host", hostRouter);
 
-app.all("/{*any}", (req, res) => {
+app.use((req, res) => {
   res.status(404).render("notfound.ejs");
 });
 
@@ -244,7 +243,3 @@ app.use((err, req, res, next) => {
 //   console.log("sample was saved");
 //   res.send("successful testing");
 // });
-
-app.listen(PORT, () => {
-  console.log(`server is listening to port ${PORT}`);
-});
