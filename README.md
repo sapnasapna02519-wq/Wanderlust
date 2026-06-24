@@ -65,6 +65,10 @@ The project delivers:
 - Host dashboard with booking and revenue metrics
 - Password reset flow via email
 
+## Live Demo
+- **Live Project**: https://wanderlust-4-aw25.onrender.com/
+- **GitHub Repository**: https://github.com/sapnasapna02519-wq/Wanderlust
+
 ## How to Run This Project
 ### 1) Clone the repository
 ```bash
